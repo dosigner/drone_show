@@ -60,7 +60,7 @@ export default function LandingPage() {
           </h1>
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent mx-auto my-6" />
           <p className="text-sm md:text-lg text-white/50 font-light tracking-wide">
-            국방과학연구소 창조관 야간 드론쇼 시뮬레이션
+            국방과학연구소 야간 드론쇼 시뮬레이션
           </p>
         </div>
 

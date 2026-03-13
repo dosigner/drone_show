@@ -1,0 +1,133 @@
+<svg width="1280" height="860" viewBox="0 0 1280 860" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="70" y1="60" x2="1220" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07111F"/>
+      <stop offset="0.5" stop-color="#081A31"/>
+      <stop offset="1" stop-color="#040913"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="rgba(255,255,255,0.12)"/>
+      <stop offset="1" stop-color="rgba(255,255,255,0.04)"/>
+    </linearGradient>
+    <linearGradient id="stroke" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#86E4FF"/>
+      <stop offset="1" stop-color="#8C6CFF"/>
+    </linearGradient>
+    <linearGradient id="track" x1="130" y1="0" x2="1150" y2="0">
+      <stop stop-color="#34E0FF"/>
+      <stop offset="0.55" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#B57BFF"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="860" rx="32" fill="url(#bg)"/>
+  <rect x="1.5" y="1.5" width="1277" height="857" rx="30.5" stroke="rgba(255,255,255,0.08)"/>
+  <text x="96" y="118" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="800" fill="#FFFFFF">Show Flow and Formation Highlights</text>
+  <text x="96" y="156" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#A8B6D9">Ten staged moments guide the audience from takeoff to landing through military-inspired point cloud formations.</text>
+
+  <path d="M126 250H1152" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+  <path d="M126 250H1152" stroke="url(#track)" stroke-width="4" stroke-linecap="round"/>
+
+  <g filter="url(#glow)">
+    <circle cx="150" cy="250" r="10" fill="#45E3FF"/>
+    <circle cx="260" cy="250" r="10" fill="#60D8FF"/>
+    <circle cx="370" cy="250" r="10" fill="#74CCFF"/>
+    <circle cx="480" cy="250" r="10" fill="#88BEFF"/>
+    <circle cx="590" cy="250" r="10" fill="#9DB0FF"/>
+    <circle cx="700" cy="250" r="10" fill="#B29FFF"/>
+    <circle cx="810" cy="250" r="10" fill="#C38DFF"/>
+    <circle cx="920" cy="250" r="10" fill="#D17EFF"/>
+    <circle cx="1030" cy="250" r="10" fill="#DB73FF"/>
+    <circle cx="1140" cy="250" r="10" fill="#E76CFF"/>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#DCE7FF">
+    <text x="150" y="285" text-anchor="middle">Takeoff</text>
+    <text x="260" y="285" text-anchor="middle">Tank</text>
+    <text x="370" y="285" text-anchor="middle">Truck + Missile</text>
+    <text x="480" y="285" text-anchor="middle">CUAV</text>
+    <text x="590" y="285" text-anchor="middle">KF-21</text>
+    <text x="700" y="285" text-anchor="middle">K2</text>
+    <text x="810" y="285" text-anchor="middle">SAR</text>
+    <text x="920" y="285" text-anchor="middle">KDDX</text>
+    <text x="1030" y="285" text-anchor="middle">ADD Text</text>
+    <text x="1140" y="285" text-anchor="middle">Landing</text>
+  </g>
+
+  <g>
+    <rect x="92" y="350" width="336" height="182" rx="24" fill="rgba(255,255,255,0.05)" stroke="url(#stroke)"/>
+    <text x="122" y="396" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">Defense Assets in the Sky</text>
+    <text x="122" y="430" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#ADC0E8">PLY-derived point clouds are transformed into glowing drone formations.</text>
+    <g font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#DDE8FF">
+      <text x="122" y="472">" K2 tank</text>
+      <text x="122" y="502">" KF-21 fighter</text>
+      <text x="122" y="532">" KDDX warship</text>
+    </g>
+    <g>
+      <circle cx="333" cy="464" r="5" fill="#63E1FF"/>
+      <circle cx="351" cy="452" r="5" fill="#7FD6FF"/>
+      <circle cx="370" cy="444" r="5" fill="#A4C3FF"/>
+      <circle cx="390" cy="436" r="5" fill="#C8A4FF"/>
+      <circle cx="346" cy="494" r="5" fill="#78DBFF"/>
+      <circle cx="366" cy="486" r="5" fill="#9AC8FF"/>
+      <circle cx="386" cy="478" r="5" fill="#C3ABFF"/>
+      <circle cx="406" cy="470" r="5" fill="#D892FF"/>
+    </g>
+  </g>
+
+  <g>
+    <rect x="472" y="350" width="336" height="182" rx="24" fill="rgba(255,255,255,0.05)" stroke="url(#stroke)"/>
+    <text x="502" y="396" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">Readable Audience Narrative</text>
+    <text x="502" y="430" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#ADC0E8">Each scene lingers long enough to feel like a real staged performance.</text>
+    <g font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#DDE8FF">
+      <text x="502" y="472">" 15-25s per sequence</text>
+      <text x="502" y="502">" Keyboard jump shortcuts</text>
+      <text x="502" y="532">" Smooth settle thresholds</text>
+    </g>
+    <path d="M720 458C730 438 752 430 774 430C796 430 818 442 828 462C836 478 830 500 812 512C795 524 770 524 752 513C732 501 722 479 720 458Z" fill="rgba(122,222,255,0.12)" stroke="rgba(143,224,255,0.5)"/>
+    <path d="M775 446V475L798 489" stroke="#E9F7FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <g>
+    <rect x="852" y="350" width="336" height="182" rx="24" fill="rgba(255,255,255,0.05)" stroke="url(#stroke)"/>
+    <text x="882" y="396" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">Interactive Viewing</text>
+    <text x="882" y="430" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#ADC0E8">Desktop pointer control and mobile touch support keep the 3D scene explorable.</text>
+    <g font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#DDE8FF">
+      <text x="882" y="472">" Orbit rotation</text>
+      <text x="882" y="502">" Zoom distance limits</text>
+      <text x="882" y="532">" Auto camera staging</text>
+    </g>
+    <rect x="1070" y="446" width="72" height="50" rx="10" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)"/>
+    <circle cx="1106" cy="470" r="12" fill="rgba(111,223,255,0.18)" stroke="#8EE8FF"/>
+    <path d="M1082 512C1088 500 1098 494 1108 494C1118 494 1128 500 1134 512" stroke="#D7E8FF" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <g>
+    <rect x="92" y="576" width="520" height="198" rx="24" fill="rgba(255,255,255,0.05)" stroke="url(#stroke)"/>
+    <text x="122" y="622" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">Formation Sources</text>
+    <text x="122" y="657" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#ADC0E8">The show mixes procedural geometry with imported assets and SVG typography.</text>
+    <g font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#DDE8FF">
+      <text x="122" y="700">" PLY to JSON conversion for military silhouettes</text>
+      <text x="122" y="730">" SVG logo import for institutional branding</text>
+      <text x="122" y="760">" Color tinting, edge bias, and glow tuning per asset</text>
+    </g>
+  </g>
+
+  <g>
+    <rect x="656" y="576" width="532" height="198" rx="24" fill="rgba(255,255,255,0.05)" stroke="url(#stroke)"/>
+    <text x="686" y="622" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">Recommended README Sections</text>
+    <g font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#DDE8FF">
+      <text x="686" y="666">1. Visual hero and quick stats</text>
+      <text x="686" y="698">2. Demo flow and formation roster</text>
+      <text x="686" y="730">3. Tech stack, local run, and export guide</text>
+      <text x="686" y="762">4. Asset pipeline and customization notes</text>
+    </g>
+  </g>
+</svg>
