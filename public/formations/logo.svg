@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <polygon id="tooth" points="93,20 107,20 104,40 96,40" />
+  </defs>
+  
+  <circle cx="100" cy="100" r="87.5" stroke="#FFCC00" stroke-width="15" fill="none" />
+  
+  <g fill="#FFCC00" transform="rotate(11.25 100 100)">
+    <use href="#tooth" />
+    <use href="#tooth" transform="rotate(22.5 100 100)" />
+    <use href="#tooth" transform="rotate(45 100 100)" />
+    <use href="#tooth" transform="rotate(67.5 100 100)" />
+    <use href="#tooth" transform="rotate(90 100 100)" />
+    <use href="#tooth" transform="rotate(112.5 100 100)" />
+    <use href="#tooth" transform="rotate(135 100 100)" />
+    <use href="#tooth" transform="rotate(157.5 100 100)" />
+    <use href="#tooth" transform="rotate(180 100 100)" />
+    <use href="#tooth" transform="rotate(202.5 100 100)" />
+    <use href="#tooth" transform="rotate(225 100 100)" />
+    <use href="#tooth" transform="rotate(247.5 100 100)" />
+    <use href="#tooth" transform="rotate(270 100 100)" />
+    <use href="#tooth" transform="rotate(292.5 100 100)" />
+    <use href="#tooth" transform="rotate(315 100 100)" />
+    <use href="#tooth" transform="rotate(337.5 100 100)" />
+  </g>
+  
+  <path d="M 100 22 L 48 158 Q 100 120 152 158 Z" fill="#FFCC00" />
+</svg>
