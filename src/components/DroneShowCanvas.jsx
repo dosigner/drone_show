@@ -627,14 +627,9 @@ export default function DroneShowCanvas({ onStepChange }) {
 
     switch (stepKey) {
       case "kf21":
-        y = Math.sin(elapsedInStep * 0.5) * 15;
-        z = -Math.sin(elapsedInStep * 0.3) * 5;
         break;
 
       case "k2": {
-        const maxDist = 20;
-        x = Math.min(elapsedInStep * 3, maxDist);
-        z = Math.min(elapsedInStep * 1.5, maxDist / 2);
         break;
       }
 
@@ -1108,12 +1103,16 @@ export default function DroneShowCanvas({ onStepChange }) {
     if (!context) return undefined;
 
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.2);
-      const renderScale = window.innerWidth < 900 ? 0.85 : 0.92;
+      const isMobileViewport = window.innerWidth < 900;
+      const dpr = isMobileViewport
+        ? Math.min(window.devicePixelRatio || 1, 3)
+        : Math.min(window.devicePixelRatio || 1, 1.2);
+      const renderScale = isMobileViewport ? 1 : 0.92;
       canvas.width = window.innerWidth * dpr * renderScale;
       canvas.height = window.innerHeight * dpr * renderScale;
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
+      context.imageSmoothingEnabled = true;
       context.setTransform(dpr * renderScale, 0, 0, dpr * renderScale, 0, 0);
     }
 
@@ -1160,6 +1159,14 @@ export default function DroneShowCanvas({ onStepChange }) {
       const settleT = currentStep ? currentStep.settleThreshold : 1;
       const transitionRatio = currentStep ? Math.min(1, Math.max(0, (avgErr - settleT) / (settleT * 3))) : 0;
       const isTransitioning = transitionRatio > 0.05 && currentStep && currentStep.key !== "takeoff" && currentStep.key !== "landing";
+      const settleProgress =
+        currentStep &&
+        !isTransitioning &&
+        currentStep.key !== "takeoff" &&
+        currentStep.key !== "landing" &&
+        Number.isFinite(avgErr)
+          ? Math.max(0, Math.min(1, (settleT - avgErr) / Math.max(0.0001, settleT * 0.55)))
+          : 0;
 
       for (let i = 0; i < ACTIVE_COUNT; i += 1) {
         const index = i * 3;
@@ -1600,11 +1607,21 @@ export default function DroneShowCanvas({ onStepChange }) {
             
             alpha = Math.min(1, alpha + boost * 0.3 + (isSettling ? 0.2 : 0));
           }
+
+          if (settleProgress > 0) {
+            const settleBrightness = 1 + settleProgress * 0.58;
+            r = Math.min(255, r * settleBrightness);
+            g = Math.min(255, g * settleBrightness);
+            b = Math.min(255, b * settleBrightness);
+            alpha = Math.min(1, alpha + settleProgress * 0.28);
+          }
         }
 
         activeQueue.push({
           x: projected.x, y: projected.y, z: projected.depth,
-          radius: projected.scale * 1.05, r, g, b, alpha,
+          radius: projected.scale * (1.05 + settleProgress * 0.18),
+          settleBoost: settleProgress,
+          r, g, b, alpha,
         });
       }
 
@@ -1648,16 +1665,29 @@ export default function DroneShowCanvas({ onStepChange }) {
 
       for (let i = 0; i < drawQueue.length; i++) {
         const point = drawQueue[i];
+        const settleBoost = point.settleBoost ?? 0;
         context.fillStyle = `rgb(${point.r}, ${point.g}, ${point.b})`;
 
-        context.globalAlpha = point.alpha * 0.25;
+        context.globalAlpha = point.alpha * (settleBoost > 0 ? 0.18 : 0.25);
         context.beginPath();
-        context.arc(point.x, point.y, point.radius * 2.5, 0, Math.PI * 2);
+        context.arc(point.x, point.y, point.radius * (settleBoost > 0 ? 2.1 : 2.5), 0, Math.PI * 2);
         context.fill();
 
         context.globalAlpha = point.alpha;
         context.beginPath();
-        context.arc(point.x, point.y, point.radius * 0.55, 0, Math.PI * 2);
+        context.arc(point.x, point.y, point.radius * (0.55 + settleBoost * 0.28), 0, Math.PI * 2);
+        context.fill();
+
+        if (settleBoost > 0.2) {
+          context.globalAlpha = Math.min(1, point.alpha * (0.9 + settleBoost * 0.2));
+          context.beginPath();
+          context.arc(point.x, point.y, point.radius * (0.24 + settleBoost * 0.12), 0, Math.PI * 2);
+          context.fill();
+        }
+
+        context.globalAlpha = point.alpha;
+        context.beginPath();
+        context.arc(point.x, point.y, point.radius * 0.12, 0, Math.PI * 2);
         context.fill();
       }
 
