@@ -7,18 +7,23 @@ const ACTIVE_COUNT = 2100;
 const BASE_COUNT = 780;
 const SHOW_SCALE = 1.4;
 const SHOW_Y_OFFSET = -36;
-const MIN_CAMERA_DISTANCE = 90;
-const MAX_CAMERA_DISTANCE = 360;
+const MIN_CAMERA_DISTANCE = 52;
+const MAX_CAMERA_DISTANCE = 520;
 const MIN_YAW = -1.48;
 const MAX_YAW = 1.48;
 const MIN_PITCH = 0.55; // 아래를 더 강하게 막음
 const MAX_PITCH = 1.52; // 직상방에 더 가깝게 허용
+const GYRO_YAW_SENSITIVITY = 0.018;
+const GYRO_PITCH_SENSITIVITY = 0.012;
+const GYRO_DEAD_ZONE = 1.6;
+const GYRO_MAX_TILT = 36;
+const GYRO_SMOOTHING = 0.1;
 const PLY_OBJECT_CONFIG = {
   tank: {
     url: "/formations/generated/object-0.json",
-    rotateX: -100, // 수평축
-    rotateY: -60, // 수직축
-    rotateZ: 0, //모니터로 나오는 축
+    rotateX: -100,
+    rotateY: 45,
+    rotateZ: 0,
     scale: 0.72,
     translate: [0, 0, -10],
   },
@@ -33,7 +38,7 @@ const PLY_OBJECT_CONFIG = {
   missile: {
     url: "/formations/generated/missile.json",
     rotateX: -90,
-    rotateY: 0,
+    rotateY: 120,
     rotateZ: 0,
     scale: 0.2,
     translate: [9, 18, -25],
@@ -41,7 +46,7 @@ const PLY_OBJECT_CONFIG = {
   cuav: {
     url: "/formations/generated/cuav.json",
     rotateX: -90,
-    rotateY: 0,
+    rotateY: 120,
     rotateZ: 0,
     scale: 1,
     translate: [0, 0, 0],
@@ -49,7 +54,7 @@ const PLY_OBJECT_CONFIG = {
   sar: {
     url: "/formations/generated/sar-ply.json",
     rotateX: -90,
-    rotateY: 0,
+    rotateY: 120,
     rotateZ: 0,
     scale: 1,
     translate: [0, 0, 0],
@@ -57,7 +62,7 @@ const PLY_OBJECT_CONFIG = {
   kddx: {
     url: "/formations/generated/kddx.json",
     rotateX: -90,
-    rotateY: 0,
+    rotateY: 120,
     rotateZ: 0,
     scale: 1,
     translate: [0, 0, 0],
@@ -65,7 +70,7 @@ const PLY_OBJECT_CONFIG = {
   kf21: {
     url: "/formations/generated/kf21.json",
     rotateX: -90,
-    rotateY: 0,
+    rotateY: 120,
     rotateZ: 0,
     scale: 1,
     translate: [0, 0, 0],
@@ -73,7 +78,7 @@ const PLY_OBJECT_CONFIG = {
   k2: {
     url: "/formations/generated/k2.json",
     rotateX: -90,
-    rotateY: 0,
+    rotateY: 35,
     rotateZ: 0,
     scale: 1,
     translate: [0, 0, 0],
@@ -81,17 +86,17 @@ const PLY_OBJECT_CONFIG = {
 };
 const TANK_COLOR_CONFIG = {
   splitRatio: 1 / 3,
-  upperBrightnessRange: [0.9, 1.08],
-  lowerBrightnessRange: [0.95, 1.03],
+  upperBrightnessRange: [0.92, 1.12],
+  lowerBrightnessRange: [0.95, 1.05],
   upperRanges: [
-    { min: [0.2, 0.34, 0.16], max: [0.34, 0.5, 0.26] },
-    { min: [0.46, 0.62, 0.24], max: [0.64, 0.8, 0.42] },
-    { min: [0.34, 0.24, 0.14], max: [0.56, 0.42, 0.26] },
+    { min: [0.14, 0.42, 0.12], max: [0.26, 0.58, 0.22] },
+    { min: [0.22, 0.55, 0.16], max: [0.38, 0.72, 0.3] },
+    { min: [0.18, 0.48, 0.1], max: [0.32, 0.64, 0.2] },
   ],
   lowerRanges: [
-    { min: [0.94, 0.94, 0.92], max: [1.0, 1.0, 0.98] },
-    { min: [0.88, 0.89, 0.86], max: [0.95, 0.96, 0.93] },
-    { min: [0.82, 0.84, 0.82], max: [0.9, 0.92, 0.89] },
+    { min: [0.7, 0.88, 0.65], max: [0.82, 0.96, 0.78] },
+    { min: [0.6, 0.82, 0.55], max: [0.74, 0.92, 0.68] },
+    { min: [0.55, 0.76, 0.5], max: [0.68, 0.86, 0.62] },
   ],
 };
 const TRUCK_COLOR_CONFIG = {
@@ -137,6 +142,21 @@ const CUAV_COLOR_CONFIG = {
     { min: [0.42, 0.62, 0.82], max: [0.58, 0.78, 0.94] },
     { min: [0.5, 0.7, 0.9], max: [0.66, 0.84, 1.0] },
     { min: [0.72, 0.86, 0.98], max: [0.84, 0.94, 1.0] },
+  ],
+};
+const K2_COLOR_CONFIG = {
+  splitRatio: 0.35,
+  upperBrightnessRange: [0.88, 1.06],
+  lowerBrightnessRange: [0.92, 1.04],
+  upperRanges: [
+    { min: [0.52, 0.36, 0.18], max: [0.68, 0.48, 0.28] },
+    { min: [0.58, 0.42, 0.22], max: [0.74, 0.54, 0.32] },
+    { min: [0.48, 0.32, 0.14], max: [0.64, 0.44, 0.24] },
+  ],
+  lowerRanges: [
+    { min: [0.78, 0.62, 0.42], max: [0.92, 0.76, 0.56] },
+    { min: [0.72, 0.56, 0.36], max: [0.86, 0.7, 0.5] },
+    { min: [0.68, 0.52, 0.32], max: [0.82, 0.66, 0.46] },
   ],
 };
 const TRUCK_MISSILE_SCENE_CONFIG = {
@@ -285,40 +305,52 @@ function createTakeoffFormation(count) {
   return { positions, colors };
 }
 
+function getDefaultCamera() {
+  if (typeof window === "undefined") return { yaw: 0, pitch: 1.02, distance: 108 };
+  const aspect = window.innerWidth / window.innerHeight;
+  const isPortrait = aspect < 1;
+  return {
+    yaw: 0,
+    pitch: isPortrait ? 0.92 : 1.02,
+    distance: isPortrait ? 118 : 108,
+  };
+}
+
 function project(x, y, z, width, height, camera) {
-  // 카메라 위치 고정 (지면 위 1.7m, 드론쇼 중앙에서 약간 뒤)
   const eyeX = 0;
   const eyeY = 1.7;
-  const eyeZ = -26; // 관람석 기준 훨씬 더 가까운 위치
-  
-  // 카메라 상대 좌표
+  const eyeZ = -26;
+
   const relX = x * SHOW_SCALE - eyeX;
   const relY = y * SHOW_SCALE + SHOW_Y_OFFSET - eyeY;
   const relZ = z * SHOW_SCALE - eyeZ;
 
-  // 고개 회전 (yaw, pitch) 적용
   const cosYaw = Math.cos(camera.yaw);
   const sinYaw = Math.sin(camera.yaw);
   const yawX = relX * cosYaw - relZ * sinYaw;
   const yawZ = relX * sinYaw + relZ * cosYaw;
-  
+
   const cosPitch = Math.cos(camera.pitch);
   const sinPitch = Math.sin(camera.pitch);
-  // 관람자가 고개를 위로 들면 하늘 쪽 형상이 화면 위로 올라오도록
-  // 카메라 기준 pitch 회전을 적용한다.
   const pitchY = relY * cosPitch + yawZ * sinPitch;
   const pitchZ = -relY * sinPitch + yawZ * cosPitch;
 
-  // FOV 기반 줌 (camera.distance가 FOV 역할)
   const perspective = camera.distance / (camera.distance + pitchZ);
-  
-  // 뒤에 있는 점은 그리지 않음
+
   if (perspective < 0) return { x: -1000, y: -1000, scale: 0, depth: -1000 };
 
+  const aspect = width / height;
+  const isPortrait = aspect < 1;
+  const projScale = isPortrait
+    ? width * 0.018
+    : Math.min(width, height) * 0.01065;
+  const verticalAnchor = isPortrait ? 0.65 : 0.78;
+  const sizeScale = Math.max(0.65, projScale / 11.5);
+
   return {
-    x: width / 2 + yawX * perspective * 11.5,
-    y: height * 0.78 - pitchY * perspective * 11.5,
-    scale: Math.max(0.28, perspective * 0.58),
+    x: width / 2 + yawX * perspective * projScale,
+    y: height * verticalAnchor - pitchY * perspective * projScale,
+    scale: Math.max(0.2, perspective * 0.58 * sizeScale),
     depth: pitchZ,
   };
 }
@@ -335,6 +367,68 @@ function clampCamera(camera) {
   camera.yaw = clamp(camera.yaw, MIN_YAW, MAX_YAW);
   camera.pitch = clamp(camera.pitch, MIN_PITCH, MAX_PITCH);
   camera.distance = clamp(camera.distance, MIN_CAMERA_DISTANCE, MAX_CAMERA_DISTANCE);
+}
+
+function applyZoomDelta(camera, delta, strength = 1) {
+  const normalizedDelta = Math.sign(delta) * Math.min(120, Math.abs(delta));
+  const distanceFactor = Math.max(0.9, camera.distance / 85);
+  camera.distance += normalizedDelta * 0.16 * distanceFactor * strength;
+  clampCamera(camera);
+}
+
+function lerp(start, end, amount) {
+  return start + (end - start) * amount;
+}
+
+function applyDeadZone(value, threshold) {
+  if (Math.abs(value) <= threshold) {
+    return 0;
+  }
+
+  return value - Math.sign(value) * threshold;
+}
+
+function getScreenOrientationAngle() {
+  if (typeof window === "undefined") {
+    return 0;
+  }
+
+  const rawAngle = window.screen?.orientation?.angle ?? window.orientation ?? 0;
+  const normalized = ((Math.round(rawAngle / 90) * 90) % 360 + 360) % 360;
+
+  if (normalized === 270) {
+    return -90;
+  }
+
+  return normalized;
+}
+
+function getNormalizedTilt(beta, gamma) {
+  const screenAngle = getScreenOrientationAngle();
+
+  switch (screenAngle) {
+    case 90:
+      return { horizontal: beta, vertical: -gamma };
+    case -90:
+      return { horizontal: -beta, vertical: gamma };
+    case 180:
+      return { horizontal: -gamma, vertical: -beta };
+    default:
+      return { horizontal: gamma, vertical: beta };
+  }
+}
+
+function syncGyroReference(gyroState, camera, resetBaseline = true) {
+  gyroState.anchorYaw = camera.yaw;
+  gyroState.anchorPitch = camera.pitch;
+  gyroState.targetYaw = camera.yaw;
+  gyroState.targetPitch = camera.pitch;
+
+  if (resetBaseline) {
+    gyroState.baselineHorizontal = null;
+    gyroState.baselineVertical = null;
+    gyroState.hasReading = false;
+  }
 }
 
 function degreesToRadians(degrees) {
@@ -565,7 +659,7 @@ async function loadPointCloudJson(url) {
   };
 }
 
-export default function DroneShowCanvas({ onStepChange }) {
+export default function DroneShowCanvas({ onStepChange, gyroEnabled = false }) {
   const canvasRef = useRef(null);
   const animationRef = useRef(0);
   const formationsRef = useRef(null);
@@ -584,6 +678,16 @@ export default function DroneShowCanvas({ onStepChange }) {
   const transitionEffectRef = useRef(0);
   const transitionFromStepKeyRef = useRef(null);
   const transitionFromElapsedInStepRef = useRef(0);
+  const gyroEnabledRef = useRef(gyroEnabled);
+  const gyroRef = useRef({
+    anchorYaw: 0,
+    anchorPitch: 0,
+    baselineHorizontal: null,
+    baselineVertical: null,
+    targetYaw: null,
+    targetPitch: null,
+    hasReading: false,
+  });
   const interactionRef = useRef({
     dragging: false,
     pointerId: null,
@@ -630,19 +734,22 @@ export default function DroneShowCanvas({ onStepChange }) {
         break;
 
       case "k2": {
+        x = Math.sin(elapsed * 0.7 + seed.phaseA) * 0.8;
+        y = Math.cos(elapsed * 0.5 + seed.phaseB) * 0.3;
+        z = Math.sin(elapsed * 0.6 + seed.phaseC) * 0.5;
         break;
       }
 
       case "tank":
-        x = Math.sin(elapsed * 15 + seed.phaseA) * 0.3;
-        y = Math.cos(elapsed * 18 + seed.phaseB) * 0.2;
-        z = Math.sin(elapsed * 16 + seed.phaseC) * 0.3;
+        x = Math.sin(elapsed * 0.8 + seed.phaseA) * 0.4;
+        y = Math.cos(elapsed * 0.6 + seed.phaseB) * 0.2;
+        z = Math.sin(elapsed * 0.7 + seed.phaseC) * 0.3;
         break;
 
       case "satellite":
-        x = Math.sin(elapsed * 0.55 + seed.phaseA) * 0.05;
-        y = Math.cos(elapsed * 0.6 + seed.phaseB) * 0.06;
-        z = Math.sin(elapsed * 0.5 + seed.phaseC) * 0.1;
+        x = Math.sin(elapsed * 0.55 + seed.phaseA) * 0.15;
+        y = Math.cos(elapsed * 0.6 + seed.phaseB) * 0.12;
+        z = Math.sin(elapsed * 0.5 + seed.phaseC) * 0.2;
         break;
 
       case "truckMissile":
@@ -652,14 +759,15 @@ export default function DroneShowCanvas({ onStepChange }) {
         break;
 
       case "shield":
-        x = elapsedInStep * 2;
-        y = Math.sin(elapsed * 1.2) * 2;
+        x = Math.sin(elapsed * 0.3 + 0.5) * 2.5;
+        y = Math.sin(elapsed * 0.5) * 0.8;
+        z = Math.cos(elapsed * 0.25) * 1.2;
         break;
 
       case "sar":
-        x = Math.sin(elapsedInStep * 0.2) * 10;
-        z = Math.cos(elapsedInStep * 0.2) * 10 - 10;
-        y = Math.sin(elapsedInStep * 0.4) * 3;
+        x = Math.sin(elapsedInStep * 0.15) * 3;
+        z = Math.cos(elapsedInStep * 0.15) * 3 - 3;
+        y = Math.sin(elapsedInStep * 0.3) * 1.2;
         break;
 
       case "addText":
@@ -869,7 +977,7 @@ export default function DroneShowCanvas({ onStepChange }) {
       }
 
       const tankSceneCloud = fitPointCloud(tankPointCloud, ACTIVE_COUNT, {
-        offset: [0, 42, 0], depth: 0.7, tint: [0.3, 0.4, 0.2], glow: 1.45, spread: 0.035, edgeBias: 0.55, useSourceDepth: true, sourceDepthScale: 1.05,
+        offset: [0, 42, 0], depth: 0.7, tint: [0.18, 0.52, 0.14], glow: 1.55, spread: 0.035, edgeBias: 0.55, useSourceDepth: true, sourceDepthScale: 1.05,
       });
       let tankMinX = Infinity, tankMaxX = -Infinity;
       let tankMinY = Infinity, tankMaxY = -Infinity;
@@ -894,6 +1002,34 @@ export default function DroneShowCanvas({ onStepChange }) {
         if (ty > textMaxY) textMaxY = ty;
       }
       const logoMaxY = textMaxY - (textMaxY - textMinY) * 0.38;
+
+      const kf21SceneCloud = fitPointCloud(kf21PointCloud, ACTIVE_COUNT, {
+        offset: [0, 42, 0], depth: 0.85, tint: [0.6, 0.6, 0.65], glow: 1.15, spread: 0.03, edgeBias: 0.58, useSourceDepth: true, sourceDepthScale: 1.05,
+      });
+      let kf21MinX = Infinity, kf21MaxX = -Infinity;
+      let kf21MinY = Infinity, kf21MaxY = -Infinity;
+      for (let i = 0; i < kf21SceneCloud.positions.length; i += 3) {
+        const fx = kf21SceneCloud.positions[i];
+        const fy = kf21SceneCloud.positions[i + 1];
+        if (fx < kf21MinX) kf21MinX = fx;
+        if (fx > kf21MaxX) kf21MaxX = fx;
+        if (fy < kf21MinY) kf21MinY = fy;
+        if (fy > kf21MaxY) kf21MaxY = fy;
+      }
+
+      const k2SceneCloud = fitPointCloud(k2PointCloud, ACTIVE_COUNT, {
+        offset: [0, 42, 0], depth: 0.75, tint: [0.58, 0.42, 0.22], glow: 1.35, spread: 0.032, edgeBias: 0.55, useSourceDepth: true, sourceDepthScale: 1.05,
+      });
+      let k2MinX = Infinity, k2MaxX = -Infinity;
+      let k2MinY = Infinity, k2MaxY = -Infinity;
+      for (let i = 0; i < k2SceneCloud.positions.length; i += 3) {
+        const kx = k2SceneCloud.positions[i];
+        const ky = k2SceneCloud.positions[i + 1];
+        if (kx < k2MinX) k2MinX = kx;
+        if (kx > k2MaxX) k2MaxX = kx;
+        if (ky < k2MinY) k2MinY = ky;
+        if (ky > k2MaxY) k2MaxY = ky;
+      }
 
       sceneMetaRef.current = {
         tank: {
@@ -929,14 +1065,15 @@ export default function DroneShowCanvas({ onStepChange }) {
           textMaxY,
           logoMaxY,
         },
+        kf21: {
+          kf21MinX, kf21MaxX,
+          kf21MinY, kf21MaxY,
+        },
+        k2: {
+          k2MinX, k2MaxX,
+          k2MinY, k2MaxY,
+        },
       };
-
-      const kf21SceneCloud = fitPointCloud(kf21PointCloud, ACTIVE_COUNT, {
-        offset: [0, 42, 0], depth: 0.85, tint: [0.6, 0.6, 0.65], glow: 1.15, spread: 0.03, edgeBias: 0.58, useSourceDepth: true, sourceDepthScale: 1.05,
-      });
-      const k2SceneCloud = fitPointCloud(k2PointCloud, ACTIVE_COUNT, {
-        offset: [0, 42, 0], depth: 0.75, tint: [0.4, 0.45, 0.5], glow: 1.15, spread: 0.032, edgeBias: 0.55, useSourceDepth: true, sourceDepthScale: 1.05,
-      });
 
       formationsRef.current = {
         landing: ground,
@@ -963,11 +1100,77 @@ export default function DroneShowCanvas({ onStepChange }) {
       advanceToStep(0);
     }
 
-    prepareShow().catch(() => {
+    prepareShow().catch((err) => {
+      console.error("prepareShow error:", err);
       onStepChange?.({ label: "로딩 실패", index: 0, total: 0 });
     });
     return () => { mounted = false; };
   }, [onStepChange]);
+
+  useEffect(() => {
+    gyroEnabledRef.current = gyroEnabled;
+  }, [gyroEnabled]);
+
+  useEffect(() => {
+    if (!gyroEnabled || typeof window === "undefined") {
+      syncGyroReference(gyroRef.current, cameraRef.current, true);
+      return undefined;
+    }
+
+    syncGyroReference(gyroRef.current, cameraRef.current, true);
+
+    function onDeviceOrientation(event) {
+      if (!Number.isFinite(event.beta) || !Number.isFinite(event.gamma)) {
+        return;
+      }
+
+      const gyroState = gyroRef.current;
+      const { horizontal, vertical } = getNormalizedTilt(event.beta, event.gamma);
+
+      if (!gyroState.hasReading) {
+        gyroState.baselineHorizontal = horizontal;
+        gyroState.baselineVertical = vertical;
+        gyroState.hasReading = true;
+        gyroState.targetYaw = gyroState.anchorYaw;
+        gyroState.targetPitch = gyroState.anchorPitch;
+        return;
+      }
+
+      const horizontalDelta = clamp(
+        applyDeadZone(horizontal - gyroState.baselineHorizontal, GYRO_DEAD_ZONE),
+        -GYRO_MAX_TILT,
+        GYRO_MAX_TILT
+      );
+      const verticalDelta = clamp(
+        applyDeadZone(vertical - gyroState.baselineVertical, GYRO_DEAD_ZONE),
+        -GYRO_MAX_TILT,
+        GYRO_MAX_TILT
+      );
+
+      gyroState.targetYaw = clamp(
+        gyroState.anchorYaw + horizontalDelta * GYRO_YAW_SENSITIVITY,
+        MIN_YAW,
+        MAX_YAW
+      );
+      gyroState.targetPitch = clamp(
+        gyroState.anchorPitch - verticalDelta * GYRO_PITCH_SENSITIVITY,
+        MIN_PITCH,
+        MAX_PITCH
+      );
+    }
+
+    function onOrientationChange() {
+      syncGyroReference(gyroRef.current, cameraRef.current, true);
+    }
+
+    window.addEventListener("deviceorientation", onDeviceOrientation);
+    window.addEventListener("orientationchange", onOrientationChange);
+
+    return () => {
+      window.removeEventListener("deviceorientation", onDeviceOrientation);
+      window.removeEventListener("orientationchange", onOrientationChange);
+    };
+  }, [gyroEnabled]);
 
   useEffect(() => {
     function onKeyDown(event) {
@@ -987,7 +1190,9 @@ export default function DroneShowCanvas({ onStepChange }) {
     }
 
     function onResetCamera() {
-      cameraRef.current = { yaw: 0, pitch: 1.02, distance: 108 };
+      const nextCamera = getDefaultCamera();
+      cameraRef.current = nextCamera;
+      syncGyroReference(gyroRef.current, nextCamera, true);
     }
 
     window.addEventListener("keydown", onKeyDown);
@@ -1035,8 +1240,7 @@ export default function DroneShowCanvas({ onStepChange }) {
 
     function onWheel(event) {
       event.preventDefault();
-      cameraRef.current.distance -= event.deltaY * 0.5; // 위로 스크롤 = 줌인
-      clampCamera(cameraRef.current);
+      applyZoomDelta(cameraRef.current, event.deltaY, 1.1);
     }
 
     function getTouchDist(touches) {
@@ -1055,7 +1259,7 @@ export default function DroneShowCanvas({ onStepChange }) {
 
     function onTouchMove(event) {
       event.preventDefault();
-      if (event.touches.length === 1 && interaction.touches.length >= 1) {
+      if (event.touches.length === 1 && interaction.touches.length >= 1 && !gyroEnabledRef.current) {
         const dx = event.touches[0].clientX - interaction.touches[0].clientX;
         const dy = event.touches[0].clientY - interaction.touches[0].clientY;
         cameraRef.current.yaw += dx * 0.005;
@@ -1065,15 +1269,17 @@ export default function DroneShowCanvas({ onStepChange }) {
       if (event.touches.length === 2) {
         const dist = getTouchDist(event.touches);
         const delta = interaction.lastPinchDist - dist;
-        cameraRef.current.distance -= delta * 2.0; // 핀치 방향 일관성 유지
+        applyZoomDelta(cameraRef.current, delta, 4.2);
         interaction.lastPinchDist = dist;
-        clampCamera(cameraRef.current);
       }
       interaction.touches = Array.from(event.touches);
     }
 
     function onTouchEnd(event) {
       interaction.touches = Array.from(event.touches);
+      if (event.touches.length < 2) {
+        interaction.lastPinchDist = 0;
+      }
     }
 
     canvas.addEventListener("pointerdown", onPointerDown);
@@ -1102,6 +1308,25 @@ export default function DroneShowCanvas({ onStepChange }) {
     const context = canvas.getContext("2d");
     if (!context) return undefined;
 
+    cameraRef.current = getDefaultCamera();
+    syncGyroReference(gyroRef.current, cameraRef.current, true);
+
+    const GLOW_SPRITE_SIZE = 48;
+    const glowSprite = document.createElement("canvas");
+    glowSprite.width = glowSprite.height = GLOW_SPRITE_SIZE * 2;
+    const glowCtx = glowSprite.getContext("2d");
+    const glowGradient = glowCtx.createRadialGradient(
+      GLOW_SPRITE_SIZE, GLOW_SPRITE_SIZE, 0,
+      GLOW_SPRITE_SIZE, GLOW_SPRITE_SIZE, GLOW_SPRITE_SIZE
+    );
+    glowGradient.addColorStop(0, "rgba(255,255,255,1)");
+    glowGradient.addColorStop(0.08, "rgba(255,255,255,0.82)");
+    glowGradient.addColorStop(0.22, "rgba(255,255,255,0.28)");
+    glowGradient.addColorStop(0.5, "rgba(255,255,255,0.06)");
+    glowGradient.addColorStop(1, "rgba(255,255,255,0)");
+    glowCtx.fillStyle = glowGradient;
+    glowCtx.fillRect(0, 0, GLOW_SPRITE_SIZE * 2, GLOW_SPRITE_SIZE * 2);
+
     function resize() {
       const isMobileViewport = window.innerWidth < 900;
       const dpr = isMobileViewport
@@ -1121,6 +1346,17 @@ export default function DroneShowCanvas({ onStepChange }) {
       const height = window.innerHeight;
       const elapsed = (now - startTimeRef.current) / 1000;
       const camera = cameraRef.current;
+      const gyroState = gyroRef.current;
+
+      if (
+        gyroEnabledRef.current &&
+        Number.isFinite(gyroState.targetYaw) &&
+        Number.isFinite(gyroState.targetPitch)
+      ) {
+        camera.yaw = lerp(camera.yaw, gyroState.targetYaw, GYRO_SMOOTHING);
+        camera.pitch = lerp(camera.pitch, gyroState.targetPitch, GYRO_SMOOTHING);
+        clampCamera(camera);
+      }
 
       context.clearRect(0, 0, width, height);
 
@@ -1291,9 +1527,9 @@ export default function DroneShowCanvas({ onStepChange }) {
           alpha = 1;
 
           if (currentStep?.key === "tank") {
-            r = mixLedChannel(r, 164, 0.32);
-            g = mixLedChannel(g, 178, 0.32);
-            b = mixLedChannel(b, 106, 0.32);
+            r = mixLedChannel(r, 80, 0.42);
+            g = mixLedChannel(g, 210, 0.42);
+            b = mixLedChannel(b, 60, 0.42);
           }
 
           if (currentStep?.key === "truckMissile" && currentSceneMeta) {
@@ -1309,9 +1545,9 @@ export default function DroneShowCanvas({ onStepChange }) {
           }
 
           if (currentStep?.key === "satellite") {
-            r = mixLedChannel(r, 236, 0.28);
-            g = mixLedChannel(g, 242, 0.28);
-            b = mixLedChannel(b, 255, 0.28);
+            r = mixLedChannel(r, 200, 0.35);
+            g = mixLedChannel(g, 230, 0.35);
+            b = mixLedChannel(b, 255, 0.35);
           }
 
           if (currentStep?.key === "kf21") {
@@ -1321,9 +1557,9 @@ export default function DroneShowCanvas({ onStepChange }) {
           }
 
           if (currentStep?.key === "k2") {
-            r = mixLedChannel(r, 255, 0.38);
-            g = mixLedChannel(g, 174, 0.38);
-            b = mixLedChannel(b, 84, 0.38);
+            r = mixLedChannel(r, 200, 0.45);
+            g = mixLedChannel(g, 140, 0.45);
+            b = mixLedChannel(b, 55, 0.45);
           }
 
           if (currentStep?.key === "sar") {
@@ -1382,22 +1618,34 @@ export default function DroneShowCanvas({ onStepChange }) {
             const normalizedX = (targetPositions[index] - currentSceneMeta.k2MinX) / k2RangeX;
             const normalizedY = (targetPositions[index + 1] - currentSceneMeta.k2MinY) / k2RangeY;
             
-            // Energy shield wave flowing over the armor
-            const waveSpeed = 1.5;
-            const wavePhase = (elapsed * waveSpeed + normalizedY * 3 - normalizedX * 2) % (Math.PI * 2);
-            const shieldWave = Math.max(0, Math.sin(wavePhase));
+            const isTrack = normalizedY < 0.2;
+            const trackGlow = isTrack
+              ? (0.5 + 0.5 * Math.sin(elapsed * 12 + normalizedX * 20)) * 0.5
+              : 0;
             
-            // Edge highlight for armor panels
-            const isEdge = normalizedX < 0.1 || normalizedX > 0.9 || normalizedY < 0.1 || normalizedY > 0.9;
-            const edgeGlow = isEdge ? (0.5 + 0.5 * Math.sin(elapsed * 3 + seed.blinkSeed * 10)) * 0.3 : 0;
+            const turretCenterX = 0.5;
+            const turretCenterY = 0.65;
+            const turretAngle = elapsed * 0.8;
+            const turretDirX = Math.cos(turretAngle);
+            const turretDirY = Math.sin(turretAngle);
+            const dx = normalizedX - turretCenterX;
+            const dy = normalizedY - turretCenterY;
+            const dotProduct = dx * turretDirX + dy * turretDirY;
+            const distFromTurretLine = Math.abs(-turretDirY * dx + turretDirX * dy);
+            const isTurretSweep = dotProduct > 0 && distFromTurretLine < 0.08 && normalizedY > 0.45;
+            const turretScan = isTurretSweep ? 0.7 : 0;
             
-            const ledBoost = shieldWave * 0.6 + edgeGlow;
+            const armorPulse = (0.5 + 0.5 * Math.sin(elapsed * 2.5 + normalizedY * 6 + normalizedX * 3)) * 0.2;
             
-            // Orange/Gold energy shield color
-            r = Math.min(255, r + 255 * ledBoost);
-            g = Math.min(255, g + 160 * ledBoost);
-            b = Math.min(255, b + 40 * ledBoost);
-            alpha = Math.min(1, alpha + ledBoost * 0.25);
+            const isHull = normalizedY > 0.2 && normalizedY < 0.55;
+            const hullGlow = isHull ? (0.5 + 0.5 * Math.sin(elapsed * 4 + seed.phaseA * 8)) * 0.15 : 0;
+            
+            const ledBoost = trackGlow + turretScan + armorPulse + hullGlow;
+            
+            r = Math.min(255, r + 220 * trackGlow + 255 * turretScan + 180 * armorPulse + 160 * hullGlow);
+            g = Math.min(255, g + 140 * trackGlow + 200 * turretScan + 120 * armorPulse + 100 * hullGlow);
+            b = Math.min(255, b + 40 * trackGlow + 80 * turretScan + 40 * armorPulse + 30 * hullGlow);
+            alpha = Math.min(1, alpha + ledBoost * 0.35);
           }
 
           if (currentStep?.key === "tank" && currentSceneMeta) {
@@ -1409,40 +1657,35 @@ export default function DroneShowCanvas({ onStepChange }) {
             const cx = targetPositions[index];
             const cy = targetPositions[index + 1];
             
-            // Cannon fire effect
-            const firePeriod = 4.0; // Fire every 4 seconds
+            const firePeriod = 2.8;
             const firePhase = elapsed % firePeriod;
             
-            // Cannon position (approximate, usually front/top)
             const cannonX = currentSceneMeta.tankMinX + tankRangeX * 0.5;
-            const cannonY = currentSceneMeta.tankMinY + tankRangeY * 0.8;
+            const cannonY = currentSceneMeta.tankMinY + tankRangeY * 0.85;
             
             const distFromCannon = Math.sqrt((cx - cannonX) * (cx - cannonX) + (cy - cannonY) * (cy - cannonY));
             
             let fireGlow = 0;
             let shockwave = 0;
             
-            if (firePhase < 0.5) { // Active firing phase
-              // Muzzle flash
-              fireGlow = Math.max(0, 1 - distFromCannon / 8) * (1 - firePhase / 0.5);
-              
-              // Expanding shockwave
-              const waveRadius = firePhase * 60;
+            if (firePhase < 0.7) {
+              fireGlow = Math.max(0, 1 - distFromCannon / 12) * Math.pow(1 - firePhase / 0.7, 1.5);
+              const waveRadius = firePhase * 80;
               const waveDist = Math.abs(distFromCannon - waveRadius);
-              shockwave = Math.max(0, 1 - waveDist / 3) * (1 - firePhase / 0.5);
+              shockwave = Math.max(0, 1 - waveDist / 4) * (1 - firePhase / 0.7);
             }
             
-            // Engine rumble/heat
             const isEngine = nyT < 0.3;
-            const engineHeat = isEngine ? (0.5 + 0.5 * Math.sin(elapsed * 5 + nxT * 10)) * 0.2 : 0;
+            const engineHeat = isEngine ? (0.5 + 0.5 * Math.sin(elapsed * 6 + nxT * 12)) * 0.3 : 0;
             
-            const ledBoost = fireGlow * 1.5 + shockwave * 1.2 + engineHeat;
+            const bodyPulse = (0.5 + 0.5 * Math.sin(elapsed * 1.8 + nyT * 4)) * 0.15;
             
-            // Red/Orange fire + shockwave
-            r = Math.min(255, r + 255 * fireGlow + 255 * shockwave + 150 * engineHeat);
-            g = Math.min(255, g + 150 * fireGlow + 100 * shockwave + 50 * engineHeat);
-            b = Math.min(255, b + 50 * fireGlow + 50 * shockwave);
-            alpha = Math.min(1, alpha + ledBoost * 0.3);
+            const ledBoost = fireGlow * 2.0 + shockwave * 1.6 + engineHeat + bodyPulse;
+            
+            r = Math.min(255, r + 255 * fireGlow + 200 * shockwave + 120 * engineHeat);
+            g = Math.min(255, g + 255 * fireGlow * 0.7 + 255 * shockwave * 0.5 + 180 * engineHeat);
+            b = Math.min(255, b + 80 * fireGlow + 80 * shockwave);
+            alpha = Math.min(1, alpha + ledBoost * 0.35);
           }
 
           if (currentStep?.key === "truckMissile" && currentSceneMeta) {
@@ -1486,6 +1729,28 @@ export default function DroneShowCanvas({ onStepChange }) {
               b = Math.min(255, b + (isExhaust ? 50 : 0) * ledBoost);
               alpha = Math.min(1, alpha + ledBoost * 0.3);
             }
+          }
+
+          if (currentStep?.key === "satellite" && currentSceneMeta) {
+            const cuavRangeX = Math.max(0.001, currentSceneMeta.cuavMaxX - currentSceneMeta.cuavMinX);
+            const cuavRangeY = Math.max(0.001, currentSceneMeta.cuavMaxY - currentSceneMeta.cuavMinY);
+            const nxC = (targetPositions[index] - currentSceneMeta.cuavMinX) / cuavRangeX;
+            const nyC = (targetPositions[index + 1] - currentSceneMeta.cuavMinY) / cuavRangeY;
+
+            const isWingTip = (nxC < 0.08 || nxC > 0.92) && nyC > 0.3 && nyC < 0.7;
+            const wingBlink = isWingTip ? (0.5 + 0.5 * Math.sin(elapsed * 4 + (nxC > 0.5 ? 0 : Math.PI))) * 0.7 : 0;
+
+            const propAngle = elapsed * 12 + nxC * Math.PI * 4;
+            const isPropArea = nyC > 0.55 && Math.abs(nxC - 0.3) < 0.12 || nyC > 0.55 && Math.abs(nxC - 0.7) < 0.12;
+            const propGlow = isPropArea ? (0.5 + 0.5 * Math.sin(propAngle)) * 0.3 : 0;
+
+            const bodyGlow = (0.5 + 0.5 * Math.sin(elapsed * 1.5 + nyC * 3)) * 0.1;
+
+            const ledBoost = wingBlink + propGlow + bodyGlow;
+            r = Math.min(255, r + 80 * wingBlink + 100 * propGlow + 60 * bodyGlow);
+            g = Math.min(255, g + 160 * wingBlink + 160 * propGlow + 120 * bodyGlow);
+            b = Math.min(255, b + 255 * wingBlink + 200 * propGlow + 180 * bodyGlow);
+            alpha = Math.min(1, alpha + ledBoost * 0.25);
           }
 
           if (currentStep?.key === "sar" && currentSceneMeta) {
@@ -1622,6 +1887,7 @@ export default function DroneShowCanvas({ onStepChange }) {
           radius: projected.scale * (1.05 + settleProgress * 0.18),
           settleBoost: settleProgress,
           r, g, b, alpha,
+          flickerSeed: seed.blinkSeed,
         });
       }
 
@@ -1666,28 +1932,57 @@ export default function DroneShowCanvas({ onStepChange }) {
       for (let i = 0; i < drawQueue.length; i++) {
         const point = drawQueue[i];
         const settleBoost = point.settleBoost ?? 0;
-        context.fillStyle = `rgb(${point.r}, ${point.g}, ${point.b})`;
 
-        context.globalAlpha = point.alpha * (settleBoost > 0 ? 0.18 : 0.25);
+        const depthFade = Math.max(0.3, 1 - Math.max(0, point.z) / 160);
+        const flicker = 0.94 + 0.06 * Math.sin(elapsed * 21 + (point.flickerSeed ?? 0) * 137.5);
+        const fadeAlpha = point.alpha * depthFade * flicker;
+        const fadeRadius = point.radius * (0.78 + depthFade * 0.22);
+
+        const atmo = (1 - depthFade) * 0.4;
+        const ar = Math.round(point.r * (1 - atmo * 0.35));
+        const ag = Math.round(point.g * (1 - atmo * 0.15));
+        const ab = Math.round(Math.min(255, point.b + 35 * atmo));
+
+        const hazeSize = fadeRadius * (settleBoost > 0 ? 5 : 6.5);
+        context.globalAlpha = fadeAlpha * 0.055;
+        context.drawImage(glowSprite, point.x - hazeSize, point.y - hazeSize, hazeSize * 2, hazeSize * 2);
+
+        const crossWidth = Math.max(0.8, fadeRadius * 0.15);
+        const crossHeight = fadeRadius * 3;
+        context.fillStyle = `rgb(${ar},${ag},${ab})`;
+        context.globalAlpha = fadeAlpha * 0.12;
+        context.fillRect(point.x - crossWidth / 2, point.y - crossHeight / 2, crossWidth, crossHeight);
+        context.fillRect(point.x - crossHeight / 2, point.y - crossWidth / 2, crossHeight, crossWidth);
+
+        context.fillStyle = `rgb(${ar},${ag},${ab})`;
+        context.globalAlpha = fadeAlpha * (settleBoost > 0 ? 0.2 : 0.28);
         context.beginPath();
-        context.arc(point.x, point.y, point.radius * (settleBoost > 0 ? 2.1 : 2.5), 0, Math.PI * 2);
+        context.arc(point.x, point.y, fadeRadius * (settleBoost > 0 ? 2.1 : 2.5), 0, Math.PI * 2);
         context.fill();
 
-        context.globalAlpha = point.alpha;
+        const mixR = Math.round(Math.min(255, ar * 0.8 + 255 * 0.2));
+        const mixG = Math.round(Math.min(255, ag * 0.8 + 255 * 0.2));
+        const mixB = Math.round(Math.min(255, ab * 0.8 + 255 * 0.2));
+        context.fillStyle = `rgb(${mixR},${mixG},${mixB})`;
+        context.globalAlpha = fadeAlpha * 0.82;
         context.beginPath();
-        context.arc(point.x, point.y, point.radius * (0.55 + settleBoost * 0.28), 0, Math.PI * 2);
+        context.arc(point.x, point.y, fadeRadius * (0.55 + settleBoost * 0.28), 0, Math.PI * 2);
         context.fill();
 
         if (settleBoost > 0.2) {
-          context.globalAlpha = Math.min(1, point.alpha * (0.9 + settleBoost * 0.2));
+          context.globalAlpha = Math.min(1, fadeAlpha * (0.9 + settleBoost * 0.2));
           context.beginPath();
-          context.arc(point.x, point.y, point.radius * (0.24 + settleBoost * 0.12), 0, Math.PI * 2);
+          context.arc(point.x, point.y, fadeRadius * (0.24 + settleBoost * 0.12), 0, Math.PI * 2);
           context.fill();
         }
 
-        context.globalAlpha = point.alpha;
+        const cr = Math.round(Math.min(255, ar * 0.3 + 180));
+        const cg = Math.round(Math.min(255, ag * 0.3 + 180));
+        const cb = Math.round(Math.min(255, ab * 0.3 + 180));
+        context.fillStyle = `rgb(${cr},${cg},${cb})`;
+        context.globalAlpha = Math.min(1, fadeAlpha * 1.15);
         context.beginPath();
-        context.arc(point.x, point.y, point.radius * 0.12, 0, Math.PI * 2);
+        context.arc(point.x, point.y, fadeRadius * 0.18, 0, Math.PI * 2);
         context.fill();
       }
 
