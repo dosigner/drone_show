@@ -61,6 +61,14 @@ function canUseDeviceOrientation() {
   return window.isSecureContext || LOCAL_HOSTNAMES.includes(window.location.hostname);
 }
 
+function requiresDeviceOrientationPermission() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return typeof window.DeviceOrientationEvent?.requestPermission === "function";
+}
+
 export default function Scene() {
   const [stepInfo, setStepInfo] = useState({ label: "준비 중", index: 0, total: 10 });
   const [isMobile, setIsMobile] = useState(false);
@@ -91,6 +99,19 @@ export default function Scene() {
     }
 
     setGyroEnabled(false);
+  }, [gyroAvailable]);
+
+  useEffect(() => {
+    if (!gyroAvailable) {
+      return;
+    }
+
+    if (requiresDeviceOrientationPermission()) {
+      return;
+    }
+
+    setGyroEnabled(true);
+    setGyroError("");
   }, [gyroAvailable]);
 
   useEffect(() => {
@@ -199,7 +220,7 @@ export default function Scene() {
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-black font-sans">
+    <div className="relative h-dvh min-h-dvh w-screen overflow-hidden bg-black font-sans">
       <DroneShowCanvas onStepChange={setStepInfo} gyroEnabled={gyroEnabled} />
 
       <div className="pointer-events-none absolute left-4 top-4 hidden max-w-[26rem] rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-white shadow-2xl backdrop-blur-xl md:block">
